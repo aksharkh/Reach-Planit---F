@@ -1,8 +1,12 @@
 export interface User {
-    id: number;
+    
     email: string;
     userName: string;
     role: string;
-    provider: string;  //"local" | "google"
 
+}
+
+export interface NavbarProps {
+    userName: string | undefined;
+    
 }
