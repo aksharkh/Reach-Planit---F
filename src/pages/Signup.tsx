@@ -4,12 +4,14 @@ import type { SignupData } from "../types/auth";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { IoCalendarSharp } from "react-icons/io5";
+import { GoogleLogin } from "@react-oauth/google";
+
 
 const Signup = () => {
   const [form] = Form.useForm<SignupData>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
-  const { signup } = useContext(AuthContext);
+  const { signup ,googleLogin } = useContext(AuthContext);
 
   const handleSubmit = async (values: any) => {
     setLoading(true);
@@ -129,9 +131,28 @@ const Signup = () => {
               </div>
 
               <div className="flex gap-4 mt-4">
-                <Button className="flex-1 h-12 rounded-xl border-gray-200 text-gray-600 font-medium flex items-center justify-center gap-2">
-                  Google
-                </Button>
+                <GoogleLogin
+                  onSuccess={async (credentialResponse) => {
+                    try {
+                      const idToken = credentialResponse.credential;
+
+                      if (!idToken) {
+                        alert("Google login failed: No ID Token");
+                        return;
+                      }
+
+                      await googleLogin(idToken);
+
+                      navigate("/dashboard");
+                    } catch (e) {
+                      console.error(e);
+                      alert("Google login failed");
+                    }
+                  }}
+                  onError={() => {
+                    alert("Google Login Failed");
+                  }}
+                />
                 <Button className="flex-1 h-12 rounded-xl border-gray-200 text-gray-600 font-medium flex items-center justify-center gap-2">
                   Facebook
                 </Button>

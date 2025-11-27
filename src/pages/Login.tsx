@@ -4,10 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { Button, Card, Form, Input } from "antd";
 import type { LoginData } from "../types/auth";
 import { IoCalendarSharp } from "react-icons/io5";
+import { GoogleLogin } from "@react-oauth/google";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext);
+  const { login, googleLogin } = useContext(AuthContext);
   const [form] = Form.useForm<LoginData>();
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -96,8 +97,18 @@ const Login = () => {
             </Form.Item>
 
             <div className="mt-8">
-              <Button htmlType="submit" loading={loading} block style={{ backgroundImage: "linear-gradient(90deg, #db2777 0%, #2563eb 100%)", color: "#fff", border: "none", }} className="h-12 rounded-xl text-lg font-semibold hover:opacity-90 shadow-lg" >
-
+              <Button
+                htmlType="submit"
+                loading={loading}
+                block
+                style={{
+                  backgroundImage:
+                    "linear-gradient(90deg, #db2777 0%, #2563eb 100%)",
+                  color: "#fff",
+                  border: "none",
+                }}
+                className="h-12 rounded-xl text-lg font-semibold hover:opacity-90 shadow-lg"
+              >
                 Log In
               </Button>
             </div>
@@ -112,9 +123,29 @@ const Login = () => {
               </div>
 
               <div className="flex gap-4 mt-4">
-                <Button className="flex-1 h-12 rounded-xl border-gray-200 text-gray-600 font-medium flex items-center justify-center gap-2">
-                  Google
-                </Button>
+                <GoogleLogin
+                  onSuccess={async (credentialResponse) => {
+                    try {
+                      const idToken = credentialResponse.credential;
+
+                      if (!idToken) {
+                        alert("Google login failed: No ID Token");
+                        return;
+                      }
+
+                      await googleLogin(idToken);
+
+                      navigate("/dashboard");
+                    } catch (e) {
+                      console.error(e);
+                      alert("Google login failed");
+                    }
+                  }}
+                  onError={() => {
+                    alert("Google Login Failed");
+                  }}
+                />
+
                 <Button className="flex-1 h-12 rounded-xl border-gray-200 text-gray-600 font-medium flex items-center justify-center gap-2">
                   Facebook
                 </Button>

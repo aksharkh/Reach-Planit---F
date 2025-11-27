@@ -9,7 +9,7 @@ const Navbar: React.FC<NavbarProps> = ({userName}) => {
   return (
     <div className="flex justify-between items-center mb-8 pt-2 ">
       <div>
-        <h1 className="text-3xl font-bold text-gray-800 m-0 tracking-tight">Hello, {userName?.split(' ')[0] || "Akshar"} 👋</h1>
+        <h1 className="text-3xl font-bold text-gray-800 m-0 tracking-tight">Hello, {userName?.split(' ')[0]} 👋</h1>
         <p className="text-gray-500 text-sm mt-1">Here's what's happening with your events today.</p>
       </div>
 

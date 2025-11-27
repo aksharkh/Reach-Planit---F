@@ -13,5 +13,17 @@ export const signupApi = async(data: SignupData): Promise<AuthTokenResponse> => 
     return res.data;
 }
 
+export const googleLoginApi = async(idToken: string) => {
+    const res = await api.post("/auth/google", { idToken});
+    return res.data;
+}
+
+export const getUserApi = async() => {
+    const res = await api.get("/user");
+    return res.data;
+}
+
+
+
 
 
