@@ -24,16 +24,16 @@ export const sidebarConfig: SidebarSection[] = [
 
     },
     {
-        title: "Account",
+        title: "Family Members",
         items: [
             {
-                id: "profile",
-                label: "Profile",
+                id: "Father",
+                label: "Father",
                 icon: <FaRegUser size={20} />,
             },
             {
-                id: "profile",
-                label: "Profile",
+                id: "Mother",
+                label: "Mother",
                 icon: <FaRegUser size={20} />,
             },
 

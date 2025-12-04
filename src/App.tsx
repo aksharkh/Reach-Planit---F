@@ -7,6 +7,7 @@ import DashboardLayout from "./pages/DashboardLayout"
 import { useContext, useState } from "react"
 import { AuthContext } from "./context/AuthContext"
 import Explore from "./pages/Explore"
+import FamilyMembers from "./pages/familyMembers/FamilyMembers"
 
 function App() {
 
@@ -17,6 +18,7 @@ function App() {
     switch (activeTab) {
       case 'dashboard': return <Dashboard user={user} />;
       case 'explore': return <Explore />;
+      case 'Father': return <FamilyMembers />
       default: return <Dashboard user={user} />;
     }
   };
