@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 export interface LoginData {
     email: string;
     password: string;
@@ -19,4 +21,12 @@ export interface AuthTokenResponse {
 
 export interface GoogleAuthData {
     idToken: string;
-}
+};
+
+export interface ProtectedRouteProps {
+    children: ReactNode;
+};
+
+export interface PublicRouteProps {
+    children: ReactNode;
+};

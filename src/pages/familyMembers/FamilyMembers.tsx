@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { AuthContext } from "../../context/AuthContext"
-import { deleteFamilyMemberApi, getFamilyMembersApi } from "../../services/familyMembers";
+import { addFamilyMemberApi, deleteFamilyMemberApi, getFamilyMembersApi, updateFamilyMemberApi } from "../../services/familyMembers";
 import { Button, message } from "antd";
 import AddEditMemberModal from "./AddEditMemberModal";
 
@@ -22,6 +22,36 @@ const FamilyMembers: React.FC = () => {
     useEffect(() => {
         loadMembers();
     }, [user]);
+
+    const handleSubmit = async(values: any) => {
+
+        const payload = {
+            ...values,
+            dob: values.dob ? values.dob.format("YYYY-MM-DD") : null,
+            hobbies: Array.isArray(values.hobbies)
+            ? values.hobbies
+            : values.hobbies
+            ? values.hobbies.split(",").map((x: string) => x.trim())
+            : [],
+            interests: Array.isArray(values.interests)
+            ? values.interests
+            : values.interests
+            ? values.interests.split(",").map((x: string) => x.trim())
+            : [],
+                };
+
+        console.log("Submitted values:", payload);
+        if(editData) {
+            await updateFamilyMemberApi(1, editData.id, payload);
+            message.success("Mwmber updated");
+        } else {
+            console.log("entered the add api");
+            await addFamilyMemberApi(1, payload);
+            message.success("Member added");
+        }
+        setOpenModal(false);
+        loadMembers();
+    }
 
     const deleteMember = async(memberId: number) => {
         await deleteFamilyMemberApi(1, memberId);
@@ -80,6 +110,7 @@ const FamilyMembers: React.FC = () => {
         open={openModal}
         onClose={() => setOpenModal(false)}
         initialData={editData}
+        onSubmit={handleSubmit}
         >
 
         </AddEditMemberModal>

@@ -13,30 +13,17 @@ export const sidebarConfig: SidebarSection[] = [
                 id: "dashboard",
                 label: "Dashboard",
                 icon: <TbLayoutDashboard size={20} />,
+                route: "",
             },
             {
                 id: "explore",
                 label: "Explore",
                 icon: <MdOutlineExplore size={20}/>,
+                route:"explore",
             },
 
         ]
 
-    },
-    {
-        title: "Family Members",
-        items: [
-            {
-                id: "Father",
-                label: "Father",
-                icon: <FaRegUser size={20} />,
-            },
-            {
-                id: "Mother",
-                label: "Mother",
-                icon: <FaRegUser size={20} />,
-            },
-
-        ]
     }
+    
 ];

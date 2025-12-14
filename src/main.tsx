@@ -5,7 +5,6 @@ import App from './App.tsx'
 import { BrowserRouter } from "react-router-dom"
 import { AuthProvider } from "./context/AuthContext.tsx"
 import { GoogleOAuthProvider } from "@react-oauth/google"
-console.log("GOOGLE CLIENT ID 👉", import.meta.env.VITE_GOOGLE_CLIENT_ID);
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

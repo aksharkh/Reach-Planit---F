@@ -1,17 +1,64 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import type { User } from "../types/user";
 import Navbar from "../components/Navbar";
-import { Button, Card } from "antd";
+import { Button, Card, message, Modal } from "antd";
 import CountdownBadge from "../components/ui/CountdownBadge";
 import { FiPlus } from "react-icons/fi";
 import { BsCalendar3 } from "react-icons/bs";
 import { FaArrowTrendUp } from "react-icons/fa6";
 import StatCard from "../components/ui/StatCard";
-import { FaGifts } from "react-icons/fa";
+import { FaBirthdayCake, FaGifts } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa";
 import { GiPartyPopper } from "react-icons/gi";
+import { useNavigate } from "react-router-dom";
+import type { FamilyMember } from "../types/familyMember";
+import { getFamilyMembersApi } from "../services/familyMembers";
 
-const Dashboard: React.FC<{ user: User | null }> = ({ user }) => {
+const Dashboard: React.FC<{ user: User | null}> = ({ user }) => {
+
+
+  const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+  const [ModalStep, setModalStep] = useState(1);
+  const [selectedCategory, setSelectedCategory] = useState<any>(null);
+  const [members, setMembers] = useState<FamilyMember[]>([]);
+
+  console.log(members);
+
+  const categories = [
+      {
+        title: "Birthday",
+        icon: FaGifts,
+        path: "addbirthday",
+        bg: "bg-pink-100 text-pink-600"
+      },
+      {
+        title: "Anniversary",
+        icon: FaHeart,
+        path: "addanniversary",
+        bg: "bg-red-100 text-red-600"
+      }
+    ];
+
+    const loadMembers = async () => {
+      try {
+        if(!user?.id) return;
+
+        const res = await getFamilyMembersApi(user.id);
+        setMembers(res);
+      } catch (error) {
+        message.error(`Failed to load the members: ${user?.id}`);
+      }
+    };
+
+    useEffect(() => {
+      loadMembers();
+    }, [user?.id]);
+
+
+
+
   return (
     <div className="p-6 lg:p-10 pb-20">
       <Navbar userName={user?.userName} />
@@ -75,7 +122,13 @@ const Dashboard: React.FC<{ user: User | null }> = ({ user }) => {
         </div>
 
         <div className="md:col-span-4 lg:col-span-2 xl:col-span-2">
-          <div className=" h-60 rounded-xl bg-white border-2 border-dotted border-gray-300 hover:border-indigo-400 hover:bg-indigo-50/20 cursor-pointer shadow-lg flex flex-col items-center justify-center group transition-all " >
+          <div onClick={() => {
+
+            setModalStep(1);
+            setSelectedCategory(null);
+            setIsModalOpen(true);
+          }
+            } className=" h-60 rounded-xl bg-white border-2 border-dotted border-gray-300 hover:border-indigo-400 hover:bg-indigo-50/20 cursor-pointer shadow-lg flex flex-col items-center justify-center group transition-all " >
             <div className=" w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center group-hover:bg-indigo-100 group-hover:scale-110 transition-all mb-4 shadow-sm text-gray-400 group-hover:text-indigo-600 " >
               <FiPlus size={24} />
             </div>
@@ -186,6 +239,58 @@ const Dashboard: React.FC<{ user: User | null }> = ({ user }) => {
         </div>
 
       </div>
+
+      <Modal
+      title={ModalStep === 1 ? "What are we celebrating?" : "Who is this for?"}
+      open={isModalOpen}
+      onCancel={() => setIsModalOpen(false)}
+      footer={null}
+      centered
+      >
+        {ModalStep === 1 && (
+        <div className="grid grid-cols-2 gap-4 mt-4">
+          {categories.map((cat, i) => (
+            
+              <StatCard 
+              key={i}
+              title={cat.title}
+              icon={cat.icon}
+              colorClass="bg-rose-200 hover:bg-rose-300"
+              onClick={() => {
+              setSelectedCategory(cat);
+              setModalStep(2);
+            }}
+              />
+            
+          ))}
+
+        </div>
+
+        )}
+
+
+        {ModalStep === 2 && (
+          <div className="grid grid-cols-1 gap-3 mt-4">
+      {members?.map((m) => (
+        <Card
+          key={m.id}
+          hoverable
+          className="rounded-xl p-4 cursor-pointer"
+          onClick={() => {
+            navigate(`${selectedCategory.path}/${m.id}`);
+            setIsModalOpen(false);
+          }}
+        >
+          
+          <p className="font-semibold text-gray-700">{m.name}</p>
+        </Card>
+      ))}
+    </div>
+
+        )}
+
+      </Modal>
+      
     </div>
   );
 };

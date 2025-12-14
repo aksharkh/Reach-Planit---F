@@ -1,4 +1,5 @@
 import { DatePicker, Form, Input, Modal, Select } from "antd";
+import dayjs from "dayjs";
 import React, { useEffect } from "react";
 
 const { Option } = Select;
@@ -20,8 +21,10 @@ const AddEditMemberModal: React.FC<Props> = ({
 
   useEffect(() => {
     if (initialData) {
-      form.setFieldValue({
+      form.setFieldsValue({
         ...initialData,
+        dob: initialData.dob ? dayjs(initialData.dob) : null,
+        
       });
     } else {
       form.resetFields();

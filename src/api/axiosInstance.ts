@@ -4,8 +4,8 @@ import { config } from "dotenv";
 
 
 
-// const API_BASE = import.meta.env.VITE_API_BASE ;
-   const API_BASE = "http://localhost:8080/api";
+const API_BASE = import.meta.env.VITE_API_BASE ;
+//    const API_BASE = "http://192.168.1.109:8080/api";
 
 const axiosInstance = axios.create({
     baseURL: API_BASE,
