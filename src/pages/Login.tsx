@@ -5,10 +5,11 @@ import { Button, Card, Form, Input } from "antd";
 import type { LoginData } from "../types/auth";
 import { IoCalendarSharp } from "react-icons/io5";
 import { GoogleLogin } from "@react-oauth/google";
+import AppleSignIn from "../components/AppleSignIn";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login, googleLogin } = useContext(AuthContext);
+  const { login, googleLogin, appleLogin } = useContext(AuthContext);
   const [form] = Form.useForm<LoginData>();
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -146,9 +147,25 @@ const Login = () => {
                   }}
                 />
 
-                <Button className="flex-1 h-12 rounded-xl border-gray-200 text-gray-600 font-medium flex items-center justify-center gap-2">
-                  Facebook
-                </Button>
+                <AppleSignIn
+                  onSuccess={async (identityToken) => {
+                    try {
+                      if (!identityToken) {
+                        alert("Apple login failed: No ID Token");
+                        return;
+                      }
+
+                      await appleLogin(identityToken);
+                      navigate("/dashboard");
+                    } catch (e) {
+                      console.error(e);
+                      alert("Apple login failed");
+                    }
+                  }}
+                  onError={() => {
+                    alert("Apple Login Failed");
+                  }}
+                />
               </div>
             </div>
 

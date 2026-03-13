@@ -32,7 +32,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         <div className="w-8 h-8 bg-linear-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center font-bold text-2xl">
           <FiZap />
         </div>
-        <span className="font-bold text-2xl text-white">PLANIT</span>
+        <span className="font-bold text-2xl text-white">TAPE</span>
       </div>
 
       {/* MAIN SECTIONS */}
@@ -166,3 +166,4 @@ const Sidebar: React.FC<SidebarProps> = ({
 };
 
 export default Sidebar;
+``

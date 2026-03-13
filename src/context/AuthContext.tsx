@@ -1,7 +1,7 @@
 import React, { createContext, useEffect, useState } from "react";
 import type { User } from "../types/user";
 import type { LoginData, SignupData } from "../types/auth";
-import { getUserApi, googleLoginApi, loginApi, signupApi } from "../services/auth";
+import { getUserApi, googleLoginApi, appleLoginApi, loginApi, signupApi } from "../services/auth";
 
 
 
@@ -11,6 +11,7 @@ interface AuthContextType {
     signup: (data: SignupData) => Promise<void>;
     logout: () => void;
     googleLogin: (idToken: string) => Promise<void>;
+    appleLogin: (identityToken: string) => Promise<void>;
 
 }
 
@@ -22,6 +23,7 @@ export const AuthContext = createContext<AuthContextType>({
     signup: async () => {},
     logout: () => {},
     googleLogin: async () => {},
+    appleLogin: async () => {},
 
 });
 
@@ -76,8 +78,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode}> = ({ children}
         await loadUser();
     }
 
+    const appleLogin = async(identityToken: string) => {
+        const token = await appleLoginApi(identityToken);
+        console.log("APPLE LOGIN API RESPONSE =", token);
+        localStorage.setItem("jwtToken", token);
+        await loadUser();
+    }
+
     return (
-        <AuthContext.Provider value={{user, login, signup, logout, googleLogin}}>
+        <AuthContext.Provider value={{user, login, signup, logout, googleLogin, appleLogin}}>
             {children}
         </AuthContext.Provider>
     )

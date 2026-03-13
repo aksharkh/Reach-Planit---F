@@ -9,6 +9,7 @@ import { AuthContext } from "../context/AuthContext"
 import MemberDetails from "../pages/familyMembers/MemberDetails"
 import CreateBirthday from "../pages/events/birthday/CreateBirthday"
 import CreateAnniversary from "../pages/events/anniversary/CreateAnniversary"
+import PlanningPage from "../pages/planning/PlanningPage"
 
 const DashboardRoutes = () => {
 
@@ -26,8 +27,10 @@ const DashboardRoutes = () => {
             <Route path="/explore" element={<Explore />} />
             <Route path="/addmember" element={<StepperForm onMembersChanged={handleMembersChanged} />} />
             <Route path="/useradded" element={<UserAdded />} />
-            <Route path="/addbirthday/:id" element={<CreateBirthday />} />
-            <Route path="/addanniversary/:id" element={<CreateAnniversary />} />
+            {/* <Route path="/birthday-planning/:id" element={<CreateBirthday />} />
+            <Route path="/anniversary-planning/:id" element={<CreateAnniversary />} /> */}
+
+            <Route path="/planning/:eventId" element={<PlanningPage user={user}/>} />
 
             <Route path="/member/:id" element={<MemberDetails onMembersChanged={handleMembersChanged} user={user} />} />
         </Routes>

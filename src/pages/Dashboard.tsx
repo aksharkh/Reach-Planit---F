@@ -1,60 +1,224 @@
 import React, { useEffect, useState } from "react";
 import type { User } from "../types/user";
 import Navbar from "../components/Navbar";
-import { Button, Card, message, Modal } from "antd";
+import { Button, Card, DatePicker, Form, Input, message, Modal, Select } from "antd";
 import CountdownBadge from "../components/ui/CountdownBadge";
 import { FiPlus } from "react-icons/fi";
 import { BsCalendar3 } from "react-icons/bs";
 import { FaArrowTrendUp } from "react-icons/fa6";
 import StatCard from "../components/ui/StatCard";
-import { FaBirthdayCake, FaGifts } from "react-icons/fa";
+import { FaBirthdayCake, FaGifts, FaPlus } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa";
 import { GiPartyPopper } from "react-icons/gi";
 import { useNavigate } from "react-router-dom";
 import type { FamilyMember } from "../types/familyMember";
 import { getFamilyMembersApi } from "../services/familyMembers";
+import { IoArrowBack } from "react-icons/io5";
+import dayjs from "dayjs";
+import { getAllBirthdayTypes } from "../services/helperData";
+import type { CreateEventPayload } from "../types/event";
+import { addEventApi } from "../services/events";
+import { getDashboardDataApi } from "../services/dashboard";
+import { type CountDownProps } from "../types/dashboard";
+
+
+const { Option} = Select;
 
 const Dashboard: React.FC<{ user: User | null}> = ({ user }) => {
 
 
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [ModalStep, setModalStep] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState<any>(null);
+  const [selectedMember, setSelectedMember] = useState<FamilyMember | null>(null);
   const [members, setMembers] = useState<FamilyMember[]>([]);
+  const [birthdayType, setBirthdayType] = useState<string | null>(null);
+  const [AllBirthdayTypes, setAllBirthdayTypes] = useState<Array<{value: string; label: string}>>([]);
+  const [dashboardData, setDashboardData] = useState<any>(null);
 
-  console.log(members);
+  const upcomingEvent =  dashboardData?.upcomingEvent;
+
+  const [form] = Form.useForm();
+
+
+  const [countdown, setCountdown] = useState<CountDownProps | null>(null);
+
 
   const categories = [
       {
         title: "Birthday",
         icon: FaGifts,
         path: "addbirthday",
-        bg: "bg-pink-100 text-pink-600"
+        bg: "bg-emerald-100",
+        hover: "bg-green-200"
       },
       {
         title: "Anniversary",
         icon: FaHeart,
         path: "addanniversary",
-        bg: "bg-red-100 text-red-600"
+        bg: "bg-rose-100",
+        hover: "bg-rose-300"
       }
     ];
 
-    const loadMembers = async () => {
+
+    const modalTitles = {
+  1: {
+    title: "What are we celebrating?",
+    subtitle: "Choose an event",
+  },
+  2: {
+    title: "Who is this for?",
+    subtitle: "Select a family member",
+  },
+  3: {
+    title: "Details",
+    
+  },
+};
+
+const categoryMap: Record<string, number> = {
+  "Birthday": 1,
+  "Anniversary": 2,
+}
+
+
+const calculateCountdown = (targetData: string) => {
+  const now = dayjs();
+  const target = dayjs(targetData);
+
+  const diff = target.diff(now, "second");
+
+  if(diff <= 0) {
+    return { days: 0, hours: 0, minutes: 0, seconds: 0};
+  }
+
+  const days = Math.floor(diff / (24 * 60 * 60));
+  const hours = Math.floor((diff % (24 * 60 * 60)) / (60 * 60));
+  const minutes = Math.floor((diff % (60 * 60)) / 60);
+  const seconds = diff % 60;
+
+  return { days, hours, minutes, seconds};
+}
+
+useEffect(() => {
+  if (!dashboardData?.upcomingEvent?.eventDate) return;
+
+  // Initial calculation
+  setCountdown(
+    calculateCountdown(dashboardData.upcomingEvent.eventDate)
+  );
+
+  const interval = setInterval(() => {
+    setCountdown(
+      calculateCountdown(dashboardData.upcomingEvent.eventDate)
+    );
+  }, 1000);
+
+  return () => clearInterval(interval);
+}, [dashboardData?.upcomingEvent?.eventDate]);
+
+
+
+const handleFinish = async(value: any) => {
+
+  try {
+
+    setIsSubmitting(true);
+
+    if(!user?.id || !selectedMember?.id || !selectedCategory) {
+      message.error("Missing required information");
+      return;
+    }
+
+    const payload: CreateEventPayload = {
+      categoryId: categoryMap[selectedCategory.title],
+      memberId: selectedMember.id,
+      birthDate: form.getFieldValue("birthDate")?.format("YYYY-MM-DD"),
+      eventDate: form.getFieldValue("eventDate")?.format("YYYY-MM-DD"),
+      description: `${selectedMember.name}'s ${selectedCategory.title}`,
+      milestoneType: value.birthdayType,
+      customMilestone: value.customMilestone || null,
+    };
+    console.log("Creating event with payload:", payload);
+
+     const res = await addEventApi(user.id, payload);
+
+    message.success("Event created successfully");
+    form.resetFields();
+    setIsModalOpen(false);
+    setModalStep(1);
+    setSelectedCategory(null);
+    setSelectedMember(null);
+    setBirthdayType(null);
+    console.log("Created Event ID:", res);
+    navigate(`planning/${res.id}`);
+    
+    
+
+    
+  } catch (error: any) {
+    console.log("Error creating event:", error);
+    message.error(error?.response?.data?.message || "Failed to create event");
+    
+  } finally {
+    setIsSubmitting(false);
+  }
+}
+
+
+// const birthdayTypes = async() => {
+//   await getAllBirthdayTypes();
+// }
+
+
+    const loadDashboardData = async () => {
       try {
         if(!user?.id) return;
 
+        const dashboardData = await getDashboardDataApi(user.id);
         const res = await getFamilyMembersApi(user.id);
+        const AllBirthdayTypes = await getAllBirthdayTypes();
+        console.log("Birthday Types:", AllBirthdayTypes);
+        setDashboardData(dashboardData);
+        console.log("DashboardData", dashboardData);
         setMembers(res);
+        setAllBirthdayTypes(AllBirthdayTypes);
       } catch (error) {
         message.error(`Failed to load the members: ${user?.id}`);
       }
     };
 
     useEffect(() => {
-      loadMembers();
+      loadDashboardData();
     }, [user?.id]);
+
+useEffect(() => {
+  if (ModalStep === 3 && selectedMember?.dob) {
+    const today = dayjs();
+    const memberDob = dayjs(selectedMember.dob);
+
+    // Fill birthDate
+    form.setFieldsValue({
+      birthDate: memberDob
+    });
+
+    // Calculate this year's birthday
+    let eventDate = memberDob.year(today.year());
+
+    // If already passed, use next year
+    if (eventDate.isBefore(today, 'day')) {
+      eventDate = memberDob.year(today.year() + 1);
+    }
+
+    form.setFieldsValue({
+      eventDate: eventDate
+    });
+  }
+}, [ModalStep, selectedMember]);
+
 
 
 
@@ -65,6 +229,7 @@ const Dashboard: React.FC<{ user: User | null}> = ({ user }) => {
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6 mb-8">
         <div className="md:col-span-12 lg:col-span-6 xl:col-span-5">
+          {upcomingEvent ? (
           <Card className="h-60 rounded-2xl bg-linear-to-r from-[#E0F2FE] to-[#EFF6FF]  shadow-lg relative overflow-hidden group hover:shadow-2xl transition-all">
             <div className="absolute right-0 top-0 w-48 h-full bg-white/30 -skew-x-12 translate-x-12 pointer-events-none transition-transform group-hover:translate-x-8"></div>
             <div className="relative z-10 flex flex-col justify-between h-full">
@@ -73,29 +238,34 @@ const Dashboard: React.FC<{ user: User | null}> = ({ user }) => {
                   Upcoming
                 </span>
                 <h3 className="text-2xl font-bold text-gray-900 m-0 mt-3">
-                  Sarah's Birthday
+                  {upcomingEvent?.description}
                 </h3>
                 <p className="text-gray-500 text-xs m-0 mt-1 font-medium">
-                  Turning 25 on Saturday
+                  {upcomingEvent?.categoryName} • {dayjs(upcomingEvent?.eventDate).format("DD MMM YYYY")}
                 </p>
               </div>
 
               <div className="flex gap-3 mt-4 items-center">
-                <div className="flex gap-2">
-                  <CountdownBadge val="02" />
-                  <span className="self-center font-bold text-indigo-300">
-                    :
-                  </span>
-                  <CountdownBadge val="14" />
-                  <span className="self-center font-bold text-indigo-300">
-                    :
-                  </span>
-                  <CountdownBadge val="35" />
-                </div>
+                {countdown && (
+                  <div className="flex gap-2">
+                    <CountdownBadge val={String(countdown.days).padStart(2, "0")} />
+                    <span className="self-center font-bold text-indigo-300">:</span>
+
+                    <CountdownBadge val={String(countdown.hours).padStart(2, "0")} />
+                    <span className="self-center font-bold text-indigo-300">:</span>
+
+                    <CountdownBadge val={String(countdown.minutes).padStart(2, "0")} />
+                    <span className="self-center font-bold text-indigo-300">:</span>
+
+                    <CountdownBadge val={String(countdown.seconds).padStart(2, "0")} />
+                  </div>
+                )}
+
 
                 <Button
                   size="small"
                   className="ml-auto bg-indigo-600 text-white border-none rounded-full px-5 text-xs font-bold shadow-lg hover:bg-indigo-700 h-9 tracking-wide"
+                  onClick={() => navigate(`planning/${upcomingEvent?.id}`)}
                 >
                   View Plan
                 </Button>
@@ -119,6 +289,11 @@ const Dashboard: React.FC<{ user: User | null}> = ({ user }) => {
               </div>
             </div>
           </Card>
+          ) : (
+            <Card className="h-60 rounded-2xl flex items-center justify-center text-gray-400">
+              No Upcoming events
+            </Card>
+          )}
         </div>
 
         <div className="md:col-span-4 lg:col-span-2 xl:col-span-2">
@@ -241,12 +416,27 @@ const Dashboard: React.FC<{ user: User | null}> = ({ user }) => {
       </div>
 
       <Modal
-      title={ModalStep === 1 ? "What are we celebrating?" : "Who is this for?"}
+      title={
+        <div className="pb-4">
+          <div className="flex items-center gap-3 mb-2 ">
+            { ModalStep !==1 && (<IoArrowBack className="text-xl cursor-pointer" onClick={() => setModalStep((prev) => Math.max(prev-1,1))}/> )}
+            <h2 className="text-lg font-semibold">
+              {modalTitles[ModalStep]?.title}
+            </h2>
+          </div>
+
+          <p className="text-sm text-gray-500">
+            {modalTitles[ModalStep]?.subtitle}
+          </p>
+        </div>
+
+      }
       open={isModalOpen}
       onCancel={() => setIsModalOpen(false)}
       footer={null}
       centered
       >
+        
         {ModalStep === 1 && (
         <div className="grid grid-cols-2 gap-4 mt-4">
           {categories.map((cat, i) => (
@@ -255,7 +445,7 @@ const Dashboard: React.FC<{ user: User | null}> = ({ user }) => {
               key={i}
               title={cat.title}
               icon={cat.icon}
-              colorClass="bg-rose-200 hover:bg-rose-300"
+              colorClass={`${cat.bg} hover:${cat.hover}`}
               onClick={() => {
               setSelectedCategory(cat);
               setModalStep(2);
@@ -275,17 +465,118 @@ const Dashboard: React.FC<{ user: User | null}> = ({ user }) => {
         <Card
           key={m.id}
           hoverable
-          className="rounded-xl p-4 cursor-pointer"
+          className="group rounded-xl p-4 cursor-pointer"
           onClick={() => {
-            navigate(`${selectedCategory.path}/${m.id}`);
-            setIsModalOpen(false);
+            // navigate(`${selectedCategory.path}/${m.id}`);
+            // setIsModalOpen(false);
+            setSelectedMember(m);
+            console.log("Selected Member:" , m);
+            setModalStep(3);
+
           }}
         >
-          
-          <p className="font-semibold text-gray-700">{m.name}</p>
+          <div className="flex justify-between items-center">
+          <div className="flex flex-col">
+            <p className="font-bold text-gray-700 text-xl">{m.name}</p>
+            <p className="text-gray-700">{m.relation}</p>
+          </div>
+
+          <div >
+            <FaPlus className=" text-black opacity-0 group-hover:opacity-100 transition-opacity"/>
+          </div>
+          </div>
         </Card>
       ))}
+
+      <div
+          onClick={() => {
+            navigate("addmember");
+            setIsModalOpen(false);
+          }}
+          className=" cursor-pointer rounded-xl border-2 border-dashed border-gray-400 group-hover:border-blue-500 text-gray-400 hover:text-primary transition flex items-center justify-center py-4 " >
+          <div className="flex flex-col items-center gap-2">
+            <span className="text-3xl font-bold">+</span>
+            <span className="text-sm">Add New Member</span>
+          </div>
+      </div>
+
+
+
     </div>
+
+        )}
+
+        {ModalStep === 3 && selectedCategory && (
+          // console.log("Selected Category:", selectedCategory),
+          <div className="mt-4">
+            <div className="bg-gray-100 p-4 rounded-xl mb-6 flex items-center gap-3">
+               {(() => {
+                 const Icon = selectedCategory?.icon;
+                 return <Icon size={16} />
+               })()}
+               <div>
+                  <p className="font-bold m-0 text-sm">Planning for {selectedMember?.name}</p>
+                  <p className="text-xs text-gray-500 m-0">{selectedCategory.title}</p>
+               </div>
+            </div>
+
+            <Form layout="vertical" form={form} onFinish={handleFinish}>
+              <Form.Item
+              name="birthDate"
+              label="Date of Birth"
+              rules={[{ required: true}]}
+              >
+                <DatePicker size="large" className="w-full"  placeholder="select date" />
+              </Form.Item>
+              <Form.Item
+              name="eventDate"
+              label="Event Date"
+              rules={[{ required: true}]}
+              >
+                <DatePicker size="large" className="w-full"  placeholder="select date" />
+              </Form.Item>
+
+              <Form.Item
+              name="birthdayType"
+              label="Which Birthday is it?"
+              rules={[{required: true}]}
+              >
+                <Select placeholder="Select Milestone" size="large" onChange={(value) => setBirthdayType(value)}>
+                  {AllBirthdayTypes.map((type) => (
+                    <Option key={type.value} value={type.value}> {type.label}</Option>
+                  ))}
+
+                </Select>
+              </Form.Item>
+
+              { birthdayType === "other" && (
+                <Form.Item
+                name="customMilestone"
+                label="Please specify the milestone"
+                rules={[{ required: true}]}
+                >
+                  <Input placeholder="Enter milestone" size="large" />
+                </Form.Item>
+              )
+
+              }
+
+              <Button
+              type="primary"
+              size="large"
+              htmlType="submit"
+              loading={isSubmitting}
+              block
+              disabled={!form.getFieldValue("birthdayType")}
+              >
+                {isSubmitting ? "Creating..." : "Create Event & Get Recommendations"}
+              </Button>
+
+
+            </Form>
+
+          </div>
+
 
         )}
 

@@ -9,3 +9,11 @@ export interface DashboardlayoutProps {
     user: User | null;
     refreshKey?: number;
 }
+
+export interface CountDownProps {
+    days: number;
+    hours: number;
+    minutes: number;
+    seconds: number;
+    
+}

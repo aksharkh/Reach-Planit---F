@@ -18,6 +18,11 @@ export const googleLoginApi = async(idToken: string) => {
     return res.data;
 }
 
+export const appleLoginApi = async(identityToken: string) => {
+    const res = await api.post("/auth/apple", { identityToken});
+    return res.data;
+}
+
 export const getUserApi = async() => {
     const res = await api.get("/user");
     return res.data;

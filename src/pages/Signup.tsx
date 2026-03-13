@@ -5,13 +5,14 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { IoCalendarSharp } from "react-icons/io5";
 import { GoogleLogin } from "@react-oauth/google";
+import AppleSignIn from "../components/AppleSignIn";
 
 
 const Signup = () => {
   const [form] = Form.useForm<SignupData>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
-  const { signup ,googleLogin } = useContext(AuthContext);
+  const { signup ,googleLogin, appleLogin } = useContext(AuthContext);
 
   const handleSubmit = async (values: any) => {
     setLoading(true);
@@ -153,9 +154,25 @@ const Signup = () => {
                     alert("Google Login Failed");
                   }}
                 />
-                <Button className="flex-1 h-12 rounded-xl border-gray-200 text-gray-600 font-medium flex items-center justify-center gap-2">
-                  Facebook
-                </Button>
+                <AppleSignIn
+                  onSuccess={async (identityToken) => {
+                    try {
+                      if (!identityToken) {
+                        alert("Apple login failed: No ID Token");
+                        return;
+                      }
+
+                      await appleLogin(identityToken);
+                      navigate("/dashboard");
+                    } catch (e) {
+                      console.error(e);
+                      alert("Apple login failed");
+                    }
+                  }}
+                  onError={() => {
+                    alert("Apple Login Failed");
+                  }}
+                />
               </div>
             </div>
 
