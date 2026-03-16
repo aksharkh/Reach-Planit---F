@@ -208,7 +208,7 @@ const Login = () => {
         </p>
       </div>
       <div className="flex flex-col justify-center items-center pt-[15px]">
-        <p className="text-neutral-400 text-[15px] sm:text-[18px] text-center">
+        <p className="text-grey-400 text-[15px] sm:text-[18px] text-center">
           Please enter your details to continue
         </p>
       </div>
@@ -288,7 +288,7 @@ const Login = () => {
             <Input
               placeholder="Enter email"
               autoComplete="email"
-              style={{ width: "100%", height: "55px", fontSize: "18px" }}
+              style={{ width: "100%", height: "55px", fontSize: "19px" }}
               className="rounded-xl"
             />
           </Form.Item>
@@ -296,7 +296,7 @@ const Login = () => {
           <Form.Item
             name="password"
             label={
-              <span className="text-[18px] sm:text-[18px] font-medium text-gray-700 ml-1">
+              <span className="text-[18px] sm:text-[20px] font-medium text-gray-700 ml-1">
                 Password
               </span>
             }
@@ -311,7 +311,7 @@ const Login = () => {
             <Input.Password
               placeholder="Enter password"
               autoComplete="current-password"
-              style={{ width: "100%", height: "55px", fontSize: "18px" }}
+              style={{ width: "100%", height: "55px", fontSize: "19px" }}
               className="rounded-xl"
             />
           </Form.Item>
@@ -335,7 +335,7 @@ const Login = () => {
             </Button>
           </div>
 
-          <p className="text-center mt-8 text-zinc-600">
+          <p className="text-center text-[16px] mt-8 text-zinc-600">
             Don&apos;t have an account?{" "}
             <button
               type="button"
