@@ -192,7 +192,8 @@ const Login = () => {
     <div className="min-h-screen w-screen overflow-hidden flex flex-col lg:flex-row">
 
       <div className="flex flex-col justify-center items-center w-full lg:w-1/2 min-h-screen px-6 py-10 sm:px-10">
-    <div className="flex flex-col justify-center items-center w-full max-w-[400px]">
+    <div className="flex flex-col justify-center items-center w-full max-w-[600px]">
+    {/* <div className="flex flex-col justify-center items-center w-full max-w-[400px]"> */}
       <button
         type="button"
         aria-label="Planit"
@@ -348,10 +349,14 @@ const Login = () => {
       </div>
     </div>
   </div>
-      <div className=" w-[1000px] h-[900px] flex justify-center items-center">
-        <Imgslider  />
-      </div>
-    </div>
+<div className="hidden lg:flex w-full lg:w-1/2 items-center justify-center p-4">
+
+  <div className="w-[1000vh] max-w-[900px] h-[90vh]">
+    <Imgslider />
+  </div>
+
+</div>
+  </div>
   );
 };
 
