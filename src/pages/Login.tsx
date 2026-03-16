@@ -8,10 +8,6 @@ import { GoogleLogin } from "@react-oauth/google";
 import AppleSignIn from "../components/AppleSignIn";
 
 import Imgslider from "../components/ImageSlider"
-
-// import ImageCarousel from "../components/ImageCarousel";
-// import { SLIDES, CAROUSEL_DURATION } from "../constants/carousel";
-
 import { LiaSignInAltSolid } from "react-icons/lia";
 //  import Img from "../assets/wallpaperflare.jpg";
 const Login = () => {
