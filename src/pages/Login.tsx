@@ -191,8 +191,8 @@ const Login = () => {
     // </div>
     <div className="min-h-screen w-screen overflow-hidden flex flex-col lg:flex-row">
 
-      <div className="flex flex-col justify-center items-center w-full lg:w-1/2 min-h-screen px-6 py-10 sm:px-10">
-    <div className="flex flex-col justify-center items-center w-full max-w-[600px]">
+      <div className="flex flex-col justify-center items-center w-full lg:w-2/5 min-h-screen px-6 py-10 sm:px-10">
+    <div className="flex flex-col justify-center items-center w-full max-w-[550px]">
     {/* <div className="flex flex-col justify-center items-center w-full max-w-[400px]"> */}
       <button
         type="button"
@@ -349,9 +349,9 @@ const Login = () => {
       </div>
     </div>
   </div>
-<div className="hidden lg:flex w-full lg:w-1/2 items-center justify-center p-4">
+<div className="hidden lg:flex w-full lg:w-3/5 items-center justify-center p-4">
 
-  <div className="w-[1000vh] max-w-[900px] h-[90vh]">
+  <div className="w-[1000vh] max-w-[1100px] h-[90vh]">
     <Imgslider />
   </div>
 
