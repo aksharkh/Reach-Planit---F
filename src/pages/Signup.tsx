@@ -193,173 +193,159 @@ const Signup = () => {
     //   </div>
     // </div>
 
-    <div className="min-h-screen w-screen overflow-hidden flex flex-col lg:flex-row">
+  <div className="h-screen w-screen overflow-hidden flex flex-row">
 
-      <div className="flex flex-col justify-center items-center w-full lg:w-2/5 min-h-screen px-6 py-10 sm:px-10">
-    <div className="flex flex-col justify-center items-center w-full max-w-[550px]">
-    {/* <div className="flex flex-col justify-center items-center w-full max-w-[400px]"> */}
-      <button
-        type="button"
-        aria-label="Planit"
-        className="shadow-xl rounded-2xl bg-zinc-800 w-[64px] h-[56px] sm:w-[80px] sm:h-[70px] flex justify-center items-center"
-      >
-        <LiaSignInAltSolid className="text-white w-[36px] h-[36px] sm:w-[45px] sm:h-[45px]" />
-      </button>
+    {/* Left: form */}
+    <div className="flex flex-col justify-center items-center w-2/5 h-full overflow-hidden px-6">
+      <div className="flex flex-col items-center w-full max-w-[360px]">
 
-      <div className="flex flex-col justify-center items-center pt-[20px]">
-        <p className="font-bold text-[22px] sm:text-[25px] text-center">
-          Welcome
-        </p>
-      </div>
-      <div className="flex flex-col justify-center items-center pt-[15px]">
-        <p className="text-grey-400 text-[15px] sm:text-[18px] text-center">
+        <button
+          type="button"
+          aria-label="Planit"
+          className="shadow-xl rounded-2xl bg-zinc-800 w-[50px] h-[44px] flex justify-center items-center"
+        >
+          <LiaSignInAltSolid className="text-white w-[26px] h-[26px]" />
+        </button>
+
+        <p className="font-bold text-[18px] text-center mt-3">Welcome</p>
+        <p className="text-gray-400 text-[12px] text-center mt-1 mb-3">
           Please enter your details to continue
         </p>
-      </div>
 
-      <div className="flex justify-center items-center pt-[8px]  gap-[25px]">
-        <div className="flex gap-4 mt-4 justify-center items-center">
+        <div className="flex justify-center items-center gap-[16px] w-full mb-1">
           <GoogleLogin
-                  onSuccess={async (credentialResponse) => {
-                    try {
-                      const idToken = credentialResponse.credential;
-
-                      if (!idToken) {
-                        alert("Google login failed: No ID Token");
-                        return;
-                      }
-
-                      await googleLogin(idToken);
-
-                      navigate("/dashboard");
-                    } catch (e) {
-                      console.error(e);
-                      alert("Google login failed");
-                    }
-                  }}
-                  onError={() => {
-                    alert("Google Login Failed");
-                  }}
-                />
+            onSuccess={async (credentialResponse) => {
+              try {
+                const idToken = credentialResponse.credential;
+                if (!idToken) { alert("Google login failed: No ID Token"); return; }
+                await googleLogin(idToken);
+                navigate("/dashboard");
+              } catch (e) {
+                console.error(e);
+                alert("Google login failed");
+              }
+            }}
+            onError={() => alert("Google Login Failed")}
+          />
+          <AppleSignIn
+            onSuccess={async (identityToken) => {
+              try {
+                if (!identityToken) { alert("Apple login failed: No ID Token"); return; }
+                await appleLogin(identityToken);
+                navigate("/dashboard");
+              } catch (e) {
+                console.error(e);
+                alert("Apple login failed");
+              }
+            }}
+            onError={() => alert("Apple Login Failed")}
+          />
         </div>
-        <div className="flex gap-4 mt-4 justify-center items-center">
-                      <AppleSignIn
-                  onSuccess={async (identityToken) => {
-                    try {
-                      if (!identityToken) {
-                        alert("Apple login failed: No ID Token");
-                        return;
-                      }
 
-                      await appleLogin(identityToken);
-                      navigate("/dashboard");
-                    } catch (e) {
-                      console.error(e);
-                      alert("Apple login failed");
-                    }
-                  }}
-                  onError={() => {
-                    alert("Apple Login Failed");
-                  }}
-                />
-        </div>
-      </div>
+        <Divider style={{ borderColor: "gray", margin: "8px 0" }}>or</Divider>
 
-      <Divider style={{ borderColor: "gray" }}>or</Divider>
-
-      <div className="w-full mt-[10px]">
-        <Form
-          layout="vertical"
-          form={form}
-          onFinish={handleSubmit}
-          size="middle"
-          requiredMark={false}
-        >
-          <Form.Item
+        <div className="w-full">
+          <Form
+            layout="vertical"
+            form={form}
+            onFinish={handleSubmit}
+            size="small"
+            requiredMark={false}
+          >
+            <Form.Item
               name="userName"
-              label={<span className="font-medium text-gray-700 ml-1">Username</span>}
+              label={<span className="font-medium text-gray-700 text-[12px]">Username</span>}
               rules={[{ required: true, message: "Please enter username!" }]}
+              style={{ marginBottom: 6 }}
             >
               <Input
                 placeholder="Enter username"
-                className="rounded-xl bg-gray-50 border-gray-200 hover:border-purple-400 focus:border-purple-500 py-3"
+                className="rounded-lg bg-gray-50 border-gray-200 py-1"
               />
             </Form.Item>
 
             <Form.Item
               name="email"
-              label={<span className="font-medium text-gray-700 ml-1">Email</span>}
-              rules={[{required: true, message: "Please enter your email!" },
-                {min: 9, message: "Password Must be 8 characters"}
+              label={<span className="font-medium text-gray-700 text-[12px]">Email</span>}
+              rules={[
+                { required: true, message: "Please enter your email!" },
+                { type: "email", message: "Please enter a valid email." },
               ]}
+              style={{ marginBottom: 6 }}
             >
               <Input
                 placeholder="Enter email"
-                className="rounded-xl bg-gray-50 border-gray-200 hover:border-purple-400 focus:border-purple-500 py-3"
+                className="rounded-lg bg-gray-50 border-gray-200 py-1"
               />
             </Form.Item>
 
             <Form.Item
               name="number"
-              label={<span className="font-medium text-gray-700 ml-1">Moblie Number</span>}
+              label={<span className="font-medium text-gray-700 text-[12px]">Mobile Number</span>}
               rules={[
-                {
-                pattern: /^[0-9]{10}$/,
-                message: "Mobile Number  must be at least 10 number.",
-              },
+                { pattern: /^[0-9]{10}$/, message: "Mobile number must be 10 digits." },
               ]}
+              style={{ marginBottom: 6 }}
             >
               <Input
                 placeholder="Enter your Mobile Number"
-                className="rounded-xl bg-gray-50 border-gray-200 hover:border-purple-400 focus:border-purple-500 py-3"
+                className="rounded-lg bg-gray-50 border-gray-200 py-1"
               />
             </Form.Item>
 
             <Form.Item
               name="password"
-              label={<span className="font-medium text-gray-700 ml-1">Password</span>}
-              rules={[{ required: true, message: "Please enter password!" },
-                {
-                min: 8,
-                message: "Password must be at least 8 characters.",
-              },
+              label={<span className="font-medium text-gray-700 text-[12px]">Password</span>}
+              rules={[
+                { required: true, message: "Please enter password!" },
+                { min: 8, message: "Password must be at least 8 characters." },
               ]}
+              style={{ marginBottom: 6 }}
             >
               <Input.Password
                 placeholder="Enter password"
-                className="rounded-xl bg-gray-50 border-gray-200 hover:border-purple-400 focus:border-purple-500 py-3"
+                className="rounded-lg bg-gray-50 border-gray-200 py-1"
               />
             </Form.Item>
 
-            <div className="mt-8">
-              <Button htmlType="submit" loading={loading} block style={{ backgroundColor: "black", color: "#fff", border: "none", }} className="h-12 rounded-xl text-lg font-semibold hover:opacity-90 shadow-lg" >
+            <div className="mt-3">
+              <Button
+                htmlType="submit"
+                loading={loading}
+                block
+                style={{ backgroundColor: "black", color: "#fff", border: "none" }}
+                className="h-9 rounded-xl text-sm font-semibold hover:opacity-90 shadow-lg"
+              >
                 Sign Up
               </Button>
-          </div>
+            </div>
 
-          <p className="text-center text-[16px] mt-8 text-zinc-600">
-            Already have an account?{" "}
-            <button
-              type="button"
-              className="text-black font-bold cursor-pointer hover:underline bg-transparent border-none p-0"
-              onClick={() => navigate("/login")}
-            >
-              Login
-            </button>
-          </p>
-        </Form>
+            <p className="text-center text-[12px] mt-3 text-zinc-600">
+              Already have an account?{" "}
+              <button
+                type="button"
+                className="text-black font-bold cursor-pointer hover:underline bg-transparent border-none p-0"
+                onClick={() => navigate("/login")}
+              >
+                Login
+              </button>
+            </p>
+          </Form>
+        </div>
+
       </div>
     </div>
-  </div>
-<div className="hidden lg:flex w-full lg:w-3/5 items-center justify-center p-4">
 
-  <div className="w-[1000vh] max-w-[1100px] h-[90vh]">
-    <Imgslider />
-  </div>
+    {/* Right: carousel */}
+    <div className="hidden lg:flex w-3/5 h-full justify-center items-center pr-8">
+      <div className="w-full h-[550px]">
+      <Imgslider />
+      </div>
+    </div>
 
-</div>
   </div>
-  );
+);
+
 };
 
 export default Signup;
